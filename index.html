@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#13091f">
+<title>众神乱爱·命运线 2.0</title>
+<style>
+:root{
+  --bg:#140a22;--bg2:#2a1040;--card:#ffffff12;--stroke:#ffffff20;
+  --text:#fff7ef;--muted:#d8c9e7;--gold:#ffd889;--pink:#ff8fc6;--red:#ff5d7d;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%,#6a3fa050,transparent 34%),
+    radial-gradient(circle at 85% 20%,#d64d8350,transparent 30%),
+    linear-gradient(160deg,var(--bg),var(--bg2));
+}
+.wrap{width:min(820px,94vw);margin:auto;padding:20px 0 44px}
+.hero{text-align:center;padding:6px 8px 18px}
+.kicker{font-size:12px;letter-spacing:.22em;color:var(--gold)}
+h1{font-size:clamp(32px,8vw,58px);margin:8px 0 6px}
+.sub{color:var(--muted);font-size:14px;line-height:1.7}
+.panel{
+  background:var(--card);border:1px solid var(--stroke);backdrop-filter:blur(10px);
+  border-radius:24px;padding:16px;box-shadow:0 18px 60px #0005;margin-bottom:14px
+}
+.step{font-weight:800;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.god{
+  border:1px solid #ffffff22;background:#ffffff0b;color:#fff;border-radius:18px;
+  padding:12px 6px;min-height:88px;cursor:pointer;transition:.18s
+}
+.god.sel{border-color:var(--gold);background:#ffffff20;transform:translateY(-2px)}
+.god:active{transform:scale(.97)}
+.emoji{font-size:28px;display:block;margin-bottom:6px}
+.name{font-size:14px;font-weight:800}.role{font-size:10px;color:var(--muted);margin-top:3px}
+.cta{
+  width:100%;border:none;border-radius:999px;padding:15px;margin-top:14px;font-size:17px;font-weight:900;
+  color:#26122e;background:linear-gradient(90deg,var(--gold),var(--pink));cursor:pointer
+}
+.cta:disabled{opacity:.45}
+.stage{position:relative;height:420px;border-radius:22px;overflow:hidden;
+  background:radial-gradient(circle at 50% 45%,#ffffff0c,transparent 44%),#0f0918b8;
+  border:1px solid #ffffff17
+}
+svg{position:absolute;inset:0;width:100%;height:100%}
+.node{
+  position:absolute;width:82px;height:82px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;background:#241536;border:1px solid #ffffff25;box-shadow:0 10px 28px #0007;
+  transform:translate(-50%,-50%);transition:all .6s ease
+}
+.node.me{width:94px;height:94px;border:2px solid var(--gold);box-shadow:0 0 28px #ffd88955}
+.node .e{font-size:26px}.node .n{font-size:11px;font-weight:800;margin-top:4px}
+.line{stroke-width:3;stroke-linecap:round;filter:drop-shadow(0 0 5px currentColor);opacity:.9}
+.eventbox{
+  margin-top:12px;padding:14px;border-radius:18px;background:#ffffff0b;border:1px solid #ffffff1e
+}
+.eventTitle{font-size:13px;color:var(--gold);margin-bottom:6px}
+.eventText{font-size:16px;line-height:1.6;font-weight:700}
+.result{
+  margin-top:12px;padding:16px;border-radius:20px;background:linear-gradient(135deg,#ffd88912,#ff8fc614);
+  border:1px solid #ffd88944;text-align:center;display:none
+}
+.result .big{font-size:24px;font-weight:900;margin:5px 0 8px}
+.result .desc{color:#fff2e7;line-height:1.75}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.ghost{
+  border:1px solid #ffffff2b;background:#ffffff0b;color:#fff;border-radius:14px;padding:12px;font-weight:800
+}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;background:#ffffff12;color:var(--muted);font-size:11px;margin-top:8px}
+.tiny{text-align:center;color:#a999bb;font-size:11px;margin-top:12px}
+@media(max-width:540px){.grid{grid-template-columns:repeat(2,1fr)}.stage{height:390px}.node{width:72px;height:72px}.node.me{width:84px;height:84px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="kicker">OLYMPUS LOVE CHAOS 2.0</div>
+    <h1>众神乱爱·命运线</h1>
+    <div class="sub">这次不只是抽签。选定你的神格后，爱情红线会开始乱连，并触发抢爱、误会、复合和反转。</div>
+  </div>
+
+  <div class="panel">
+    <div class="step">① 选择你的神格</div>
+    <div class="grid" id="grid"></div>
+    <button class="cta" id="start" disabled>启动奥林匹斯爱情混战 ⚡️</button>
+  </div>
+
+  <div class="panel" id="game" style="display:none">
+    <div class="step">② 命运关系网</div>
+    <div class="stage" id="stage">
+      <svg id="lines"></svg>
+    </div>
+    <div class="eventbox">
+      <div class="eventTitle">⚡ 当前事件</div>
+      <div class="eventText" id="eventText">命运正在加载……</div>
+      <div class="badge" id="roundBadge">第 1 回合</div>
+    </div>
+    <button class="cta" id="next">触发下一回合</button>
+
+    <div class="result" id="result">
+      <div style="font-size:12px;color:var(--muted)">最终神谕</div>
+      <div class="big" id="ending"></div>
+      <div class="desc" id="endingDesc"></div>
+      <div class="actions">
+        <button class="ghost" id="restart">重新开局</button>
+        <button class="ghost" id="copy">复制战报</button>
+      </div>
+    </div>
+  </div>
+  <div class="tiny">纯娱乐 · 每局关系与事件随机生成</div>
+</div>
+
+<script>
+const gods=[
+{n:"阿佛洛狄忒",e:"💗",r:"爱与美"},
+{n:"阿波罗",e:"☀️",r:"太阳与艺术"},
+{n:"雅典娜",e:"🦉",r:"智慧与战略"},
+{n:"赫尔墨斯",e:"🪽",r:"速度与消息"},
+{n:"阿瑞斯",e:"⚔️",r:"战争与冲动"},
+{n:"阿尔忒弥斯",e:"🌙",r:"月亮与自由"},
+{n:"哈迪斯",e:"🖤",r:"冥界与深情"},
+{n:"波塞冬",e:"🌊",r:"海洋与情绪"},
+{n:"宙斯",e:"⚡️",r:"天空与麻烦"}
+];
+
+const events=[
+"{A}突然公开站在你这边，{B}当场沉默。",
+"{A}给你发来一句暧昧消息，结果被{B}看见了。",
+"{A}宣布退出，三秒后又因为吃醋回来。",
+"{A}以为你喜欢{B}，于是开始故意冷淡。",
+"{A}和{B}为了你爆发正面冲突。",
+"{A}说只是朋友，但红线已经亮得藏不住。",
+"{B}突然向{A}示好，关系网当场崩坏。",
+"{A}消失一回合，回来后态度完全反转。",
+"{A}替你挡下一场麻烦，暧昧指数直接翻倍。",
+"{B}误会你和{A}已经在一起，准备退出。"
+];
+
+const endings=[
+["宿命锁死","绕了一圈，最难割舍的那条红线最后还是回到了你身上。"],
+["全员误会","每个人都以为自己看懂了关系，实际上没有一个人看懂。"],
+["反转官配","一开始最不起眼的人，最后成了唯一没有离开的那个。"],
+["爱神失控","这局已经不是爱情，是奥林匹斯大型事故现场。"],
+["清醒赢家","所有人都卷进去了，只有你最后成功保住了理智。"],
+["旧线复燃","本来已经断掉的那条线，在最后一回合重新亮起。"]
+];
+
+let selected=null, round=1, active=[], log=[];
+const grid=document.getElementById("grid");
+const start=document.getElementById("start");
+const game=document.getElementById("game");
+const stage=document.getElementById("stage");
+const lines=document.getElementById("lines");
+const eventText=document.getElementById("eventText");
+const roundBadge=document.getElementById("roundBadge");
+const result=document.getElementById("result");
+const next=document.getElementById("next");
+
+gods.forEach((g,i)=>{
+  const b=document.createElement("button");
+  b.className="god";
+  b.innerHTML=`<span class="emoji">${g.e}</span><div class="name">${g.n}</div><div class="role">${g.r}</div>`;
+  b.onclick=()=>{
+    selected=i;
+    [...grid.children].forEach(x=>x.classList.remove("sel"));
+    b.classList.add("sel");
+    start.disabled=false;
+  };
+  grid.appendChild(b);
+});
+
+function sample(arr,n){
+  const a=[...arr].sort(()=>Math.random()-.5);
+  return a.slice(0,n);
+}
+
+function setPositions(){
+  const pts=[
+    [50,50],[18,24],[82,24],[18,76],[82,76],[50,10]
+  ];
+  stage.querySelectorAll(".node").forEach(x=>x.remove());
+  active.forEach((idx,j)=>{
+    const d=document.createElement("div");
+    d.className="node"+(j===0?" me":"");
+    d.style.left=pts[j][0]+"%";
+    d.style.top=pts[j][1]+"%";
+    d.innerHTML=`<div class="e">${gods[idx].e}</div><div class="n">${gods[idx].n}</div>`;
+    d.dataset.pos=JSON.stringify(pts[j]);
+    stage.appendChild(d);
+  });
+}
+
+function drawLines(){
+  lines.innerHTML="";
+  const colors=["#ff5d7d","#ffd889","#9d8cff","#70d6ff","#ff8fc6"];
+  for(let i=1;i<active.length;i++){
+    const a=[50,50], b=JSON.parse(stage.querySelectorAll(".node")[i].dataset.pos);
+    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1",a[0]+"%"); l.setAttribute("y1",a[1]+"%");
+    l.setAttribute("x2",b[0]+"%"); l.setAttribute("y2",b[1]+"%");
+    l.setAttribute("class","line"); l.setAttribute("stroke",colors[(i+round)%colors.length]);
+    lines.appendChild(l);
+  }
+  if(active.length>3){
+    const p1=JSON.parse(stage.querySelectorAll(".node")[1].dataset.pos);
+    const p2=JSON.parse(stage.querySelectorAll(".node")[2].dataset.pos);
+    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1",p1[0]+"%");l.setAttribute("y1",p1[1]+"%");
+    l.setAttribute("x2",p2[0]+"%");l.setAttribute("y2",p2[1]+"%");
+    l.setAttribute("class","line");l.setAttribute("stroke","#ffffff66");
+    l.setAttribute("stroke-dasharray","7 7"); lines.appendChild(l);
+  }
+}
+
+function event(){
+  const others=active.slice(1);
+  const a=others[Math.floor(Math.random()*others.length)];
+  let b=others[Math.floor(Math.random()*others.length)];
+  while(b===a && others.length>1) b=others[Math.floor(Math.random()*others.length)];
+  let text=events[Math.floor(Math.random()*events.length)]
+    .replaceAll("{A}",gods[a].n).replaceAll("{B}",gods[b].n);
+  eventText.textContent=text;
+  log.push("第"+round+"回合："+text);
+  roundBadge.textContent="第 "+round+" 回合";
+  drawLines();
+}
+
+function begin(){
+  const pool=gods.map((_,i)=>i).filter(i=>i!==selected);
+  active=[selected,...sample(pool,4)];
+  round=1;log=[];result.style.display="none";next.style.display="block";
+  setPositions();drawLines();event();
+  game.style.display="block";
+  game.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+start.onclick=begin;
+
+next.onclick=()=>{
+  round++;
+  if(round<=4){event();}
+  else{
+    const en=endings[Math.floor(Math.random()*endings.length)];
+    document.getElementById("ending").textContent=en[0];
+    document.getElementById("endingDesc").textContent=en[1];
+    result.style.display="block";
+    next.style.display="none";
+    log.push("最终神谕："+en[0]+"——"+en[1]);
+  }
+};
+
+document.getElementById("restart").onclick=begin;
+
+document.getElementById("copy").onclick=async()=>{
+  const txt=`《众神乱爱·命运线 2.0》\n我的神格：${gods[selected].n}\n\n${log.join("\n")}`;
+  try{
+    await navigator.clipboard.writeText(txt);
+    document.getElementById("copy").textContent="已复制 ✓";
+    setTimeout(()=>document.getElementById("copy").textContent="复制战报",1200);
+  }catch(e){alert("请长按复制页面结果");}
+};
+</script>
+</body>
+</html>
